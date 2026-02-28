@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"errors"
 	"os"
 
 	"go.uber.org/zap"
@@ -16,7 +17,7 @@ type zapLogger struct {
 
 func NewZapLogger(cfg *Config) (Logger, error) {
 	if cfg == nil {
-		cfg = DefaultConfig(ModeDevelopment)
+		return nil, errors.New("config is nil")
 	}
 
 	zl := &zapLogger{
