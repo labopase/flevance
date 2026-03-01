@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,13 +11,38 @@ import (
 	"github.com/labopase/flevance/chirouter"
 )
 
+type Response struct {
+	Error   bool        `json:"error"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"user,omitempty"`
+}
+
 func main() {
 	cfg := chirouter.DefaultConfig()
-	engine, _ := chirouter.New(cfg)
+	e, _ := chirouter.New(cfg)
+
+	e.GET("/", func(ctx *chirouter.Context) error {
+		ctx.String(http.StatusOK, "Welcome to Chirouter")
+		return nil
+	})
+
+	e.GET("/user", func(ctx *chirouter.Context) error {
+		ctx.JSON(http.StatusOK, Response{
+			Error:   false,
+			Message: "Success",
+			Data: map[string]interface{}{
+				"id":    1,
+				"name":  "John Doe",
+				"email": "[EMAIL_ADDRESS]",
+				"age":   30,
+			},
+		})
+		return nil
+	})
 
 	go func() {
 		log.Print("Starting server on ", cfg.Addr())
-		if err := engine.Start(); err != nil {
+		if err := e.Start(); err != nil {
 			log.Fatal(err)
 		}
 	}()
@@ -25,7 +51,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	if err := engine.Shutdown(context.Background()); err != nil {
+	if err := e.Shutdown(context.Background()); err != nil {
 		log.Fatal("Error shutting down HTTP server: ", err)
 	}
 }
