@@ -6,6 +6,7 @@ import (
 )
 
 type Config struct {
+	AppName             string        `mapstructure:"app_name"`
 	Host                string        `mapstructure:"host"`
 	Port                int           `mapstructure:"port"`
 	ReadTimeout         time.Duration `mapstructure:"read_timeout"`

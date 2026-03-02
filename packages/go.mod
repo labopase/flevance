@@ -4,6 +4,7 @@ go 1.25.3
 
 require (
 	github.com/cockroachdb/errors v1.12.0
+	github.com/go-chi/chi/v5 v5.2.5
 	github.com/labstack/echo/v5 v5.0.4
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/spf13/viper v1.21.0
