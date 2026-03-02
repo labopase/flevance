@@ -11,6 +11,7 @@ type app struct {
 }
 
 type App interface {
+	Run()
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
 	Wait() <-chan fx.ShutdownSignal
@@ -20,6 +21,10 @@ func NewApp(opts ...fx.Option) App {
 	return &app{
 		fxApp: fx.New(opts...),
 	}
+}
+
+func (a *app) Run() {
+	a.fxApp.Run()
 }
 
 func (a *app) Start(ctx context.Context) error {

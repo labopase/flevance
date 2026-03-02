@@ -19,10 +19,10 @@ const (
 )
 
 type Config struct {
-	Level        LogLevel
-	EnableCaller bool
-	EnableTrace  bool
-	Environment  Mode
+	Level        LogLevel `mapstructure:"level"`
+	EnableCaller bool     `mapstructure:"enable_caller"`
+	EnableTrace  bool     `mapstructure:"enable_trace"`
+	Environment  Mode     `mapstructure:"environment"`
 }
 
 func DefaultConfig() *Config {
