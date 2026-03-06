@@ -3,7 +3,12 @@ package appbuilder
 import (
 	"context"
 	"errors"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	chihttp "github.com/labopase/flevance/packages/chi-http"
 	echohttp "github.com/labopase/flevance/packages/echo-http"
 	"github.com/labopase/flevance/packages/logger"
 	"go.uber.org/fx"
@@ -57,6 +62,46 @@ var (
 				fx.Hook{
 					OnStop: func(_ context.Context) error {
 						return log.Sync()
+					},
+				},
+			)
+		}),
+	)
+
+	ChiModule = fx.Module("chi",
+		fx.Provide(
+			func() (*chihttp.Config, error) {
+				cfg, err := BindConfig[*chihttp.Config]("server")
+				if err != nil {
+					return nil, err
+				}
+
+				return cfg, nil
+			},
+			chihttp.New,
+		),
+		fx.Invoke(func(lc fx.Lifecycle, eng chihttp.Engine) {
+			lc.Append(
+				fx.Hook{
+					OnStart: func(context.Context) error {
+						go func() {
+							if err := eng.Start(); err != nil {
+								return
+							}
+						}()
+
+						return nil
+					},
+					OnStop: func(context.Context) error {
+						quit := make(chan os.Signal, 1)
+						signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+						<-quit
+
+						ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+						defer cancel()
+
+						return eng.Shutdown(ctx)
 					},
 				},
 			)

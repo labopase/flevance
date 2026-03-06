@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/labopase/flevance/packages/logger"
 )
 
@@ -43,8 +44,11 @@ func New(cfg *Config, log logger.Logger) (Engine, error) {
 
 	cfg.applyDefaults()
 
+	handler := chi.NewRouter()
+
 	server := &http.Server{
 		Addr:           cfg.Addr(),
+		Handler:        handler,
 		ReadTimeout:    cfg.ReadTimeout,
 		WriteTimeout:   cfg.WriteTimeout,
 		IdleTimeout:    cfg.IdleTimeout,
@@ -60,8 +64,7 @@ func New(cfg *Config, log logger.Logger) (Engine, error) {
 }
 
 func (e *engine) Start() error {
-	e.router = NewRouter()
-	e.server.Handler = e.router
+	e.log.Infof("Starting server on %s", e.config.Addr())
 	return e.server.ListenAndServe()
 }
 

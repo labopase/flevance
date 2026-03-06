@@ -3,7 +3,6 @@ package echohttp
 import (
 	"context"
 	"errors"
-	"net"
 	"net/http"
 
 	"github.com/labopase/flevance/packages/logger"
@@ -29,6 +28,8 @@ func New(cfg *Config, log logger.Logger) (Engine, error) {
 	if log == nil {
 		return nil, errors.New("logger is required")
 	}
+
+	cfg.applyDefaults()
 
 	e := echo.New()
 
@@ -57,9 +58,6 @@ func (e *engine) Start(ctx context.Context) error {
 		},
 		OnShutdownError: func(err error) {
 			e.log.Errorf("Server shutdown error: %v", err)
-		},
-		ListenerAddrFunc: func(addr net.Addr) {
-			e.log.Infof("Server is running on %s", addr.String())
 		},
 	}
 

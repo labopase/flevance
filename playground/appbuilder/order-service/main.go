@@ -11,7 +11,7 @@ func main() {
 	builder.Option(
 		module.AppModule,
 		module.LoggerModule,
-		module.EchoModule,
+		module.ChiModule,
 	)
 
 	app := builder.Build()
